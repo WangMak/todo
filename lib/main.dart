@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 List<Task> tasks = [];
 final TextEditingController titleController = TextEditingController();
 final TextEditingController detailsController = TextEditingController();
-final TextEditingController dateController = TextEditingController();
+final TextEditingController duedateController = TextEditingController();
 final TextEditingController timeController = TextEditingController();
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -58,14 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void addItem(Task task) {
-    setState(() {
-      tasks.add(task);
-    });
-    titleController.clear();
-    detailsController.clear();
-    dateController.clear();
-    timeController.clear();
+  List<Widget> getTask() {
+    final List<Widget> task = <Widget>[];
+    for (int i = 0; i < tasks.length; i++) {
+      task.add(buildItem(tasks[i], i));
+    }
+    return task;
   }
 
   Widget buildItem(Task task, int i) {
@@ -73,23 +71,14 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => detail(i)),
-        ).then((value) => setState(() {}));
+          MaterialPageRoute(builder: (context) => editDetail(i)),
+        ).then((i) => setState(() {}));
       },
       child: Card(
         margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
         child: Column(
           children: <Widget>[
             ListTile(
-              leading: Checkbox(
-                checkColor: Colors.white,
-                onChanged: (bool? value) {
-                  setState(() {
-                    tasks[i].remove = value!;
-                  });
-                },
-                value: tasks[i].remove,
-              ),
               title: Text(task.title, style: const TextStyle()),
               subtitle: Text(task.duedate + " " + task.time,
                   style: const TextStyle()),
@@ -108,6 +97,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void addItem(Task task) {
+    setState(() {
+      tasks.add(task);
+    });
+    titleController.clear();
+    detailsController.clear();
+    duedateController.clear();
+    timeController.clear();
+  }
+
   Future<Future> displayDialog(BuildContext context) async {
     return showDialog(
         context: context,
@@ -124,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 decoration: const InputDecoration(hintText: 'Details'),
               ),
               TextField(
-                controller: dateController,
+                controller: duedateController,
                 decoration: const InputDecoration(hintText: 'Due Date'),
               ),
               TextField(
@@ -138,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.of(context).pop();
                   addItem(Task(titleController.text, detailsController.text,
-                      dateController.text, timeController.text, false));
+                      duedateController.text, timeController.text, false));
                 },
               ),
               TextButton(
@@ -151,39 +150,31 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         });
   }
-
-  List<Widget> getTask() {
-    final List<Widget> task = <Widget>[];
-    for (int i = 0; i < tasks.length; i++) {
-      task.add(buildItem(tasks[i], i));
-    }
-    return task;
-  }
 }
 
-class detail extends StatefulWidget {
+class editDetail extends StatefulWidget {
   final int index;
-  const detail(this.index);
+  const editDetail(this.index);
 
   @override
-  State<detail> createState() => _detailState();
+  State<editDetail> createState() => _detailState();
 }
 
-class _detailState extends State<detail> {
+class _detailState extends State<editDetail> {
   void editItem(Task task, int i) {
     setState(() {
       tasks[i] = task;
     });
     titleController.clear();
     detailsController.clear();
-    dateController.clear();
+    duedateController.clear();
     timeController.clear();
   }
 
   Future<Future> _displayDialog(BuildContext context) async {
     titleController.text = tasks[widget.index].title;
     detailsController.text = tasks[widget.index].details;
-    dateController.text = tasks[widget.index].duedate;
+    duedateController.text = tasks[widget.index].duedate;
     timeController.text = tasks[widget.index].time;
 
     return showDialog(
@@ -203,7 +194,7 @@ class _detailState extends State<detail> {
                 decoration: const InputDecoration(hintText: 'details'),
               ),
               TextField(
-                controller: dateController,
+                controller: duedateController,
                 decoration: const InputDecoration(hintText: 'date'),
               ),
               TextField(
@@ -218,7 +209,7 @@ class _detailState extends State<detail> {
                   Navigator.of(context).pop();
                   editItem(
                       Task(titleController.text, detailsController.text,
-                          dateController.text, timeController.text, false),
+                          duedateController.text, timeController.text, false),
                       widget.index);
                 },
               ),
